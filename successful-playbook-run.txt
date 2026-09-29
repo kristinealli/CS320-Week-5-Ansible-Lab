@@ -1,0 +1,43 @@
+
+PLAY [Configure AlmaLinux web server] ******************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [tp_cs320_al10]
+
+TASK [Add Google Chrome repository] ********************************************
+ok: [tp_cs320_al10]
+
+TASK [Install Required Software] ***********************************************
+changed: [tp_cs320_al10]
+
+TASK [Copy Website Files to Apache Document Root] ******************************
+ok: [tp_cs320_al10] => (item=index.html)
+ok: [tp_cs320_al10] => (item=about.html)
+ok: [tp_cs320_al10] => (item=contact.html)
+
+TASK [Remove Google Chrome after installation] *********************************
+changed: [tp_cs320_al10]
+
+TASK [Reboot AlmaLinux and wait for it to return] ******************************
+changed: [tp_cs320_al10]
+
+TASK [Enable Apache HTTPD at startup] ******************************************
+ok: [tp_cs320_al10]
+
+TASK [Restart Apache HTTPD service] ********************************************
+changed: [tp_cs320_al10]
+
+TASK [Confirm Apache HTTPD is running] *****************************************
+ok: [tp_cs320_al10]
+
+TASK [Display Apache service status] *******************************************
+ok: [tp_cs320_al10] => {
+    "msg": "Appache HTTPD service status: active"
+}
+
+TASK [Verify the website responds locally] *************************************
+ok: [tp_cs320_al10]
+
+PLAY RECAP *********************************************************************
+tp_cs320_al10              : ok=11   changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

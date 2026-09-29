@@ -1,0 +1,76 @@
+---
+- name: Configure AlmaLinux web server
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars: 
+    website_files:
+      - index.html
+      - about.html
+      - contact.html
+  
+  tasks:
+    - name: Add Google Chrome repository
+      ansible.builtin.yum_repository:
+        name: google_chrome
+        description: "Google Chrome repository"
+        baseurl: "https://dl.google.com/linux/chrome/rpm/stable/x86_64"
+        enabled: true
+        gpgcheck: true
+        gpgkey: "https://dl.google.com/linux/linux_signing_key.pub" 
+
+    - name: Install Required Software
+      ansible.builtin.dnf:
+        name:
+          - google-chrome-stable
+          - firefox
+          - git
+          - httpd
+          - mariadb-server
+        state: present
+
+    - name: Copy Website Files to Apache Document Root
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "/var/www/html/{{ item }}"
+        owner: root
+        group: root
+        mode: '0644'
+      loop: "{{ website_files }}"
+
+    - name: Remove Google Chrome after installation
+      ansible.builtin.dnf:
+        name: google-chrome-stable
+        state: absent
+
+    - name: Reboot AlmaLinux and wait for it to return
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by the Ansible Week 5 Lab"
+        reboot_timeout: 300
+
+    - name: Enable Apache HTTPD at startup
+      ansible.builtin.service:
+        name: httpd
+        enabled: true
+
+    - name: Restart Apache HTTPD service
+      ansible.builtin.service:
+        name: httpd
+        state: restarted
+
+    - name: Confirm Apache HTTPD is running
+      ansible.builtin.command: systemctl is-active httpd
+      register: httpd_status
+      changed_when: false
+      failed_when: httpd_status.stdout != "active"
+
+    - name: Display Apache service status
+      ansible.builtin.debug:
+        msg: "Appache HTTPD service status: {{ httpd_status.stdout }}"
+
+
+    - name: Verify the website responds locally
+      ansible.builtin.uri:
+        url: "http://localhost"
+        status_code: 200

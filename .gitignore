@@ -1,0 +1,20 @@
+# Ansible temporary files
+*.retry
+*.log
+
+# Value/ password files
+vault_pass.txt
+*.vault
+secrets.yml
+
+# SSH private eyes
+id_rsa
+id_ed25519
+*.pem
+
+# VS Code local settings
+.vscode/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
