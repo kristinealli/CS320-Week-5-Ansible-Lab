@@ -34,7 +34,7 @@ The website contains three pages:
 Before running the playbook, confirm that you have:
 
 - WSL with an Ansible control environment.
-- Ansible installed and available on your `PATH`.
+- Ansible installed.
 - Network or SSH access to the AlmaLinux managed host.
 - A working SSH private key with permission to connect to the managed host.
 - `sudo` privileges on the managed host.
@@ -75,15 +75,6 @@ ansible-playbook -i inventory.ini site.yml
 
 The playbook uses `become: true`, so Ansible may prompt for the managed user's `sudo` password. If the SSH key or inventory file is stored elsewhere, use its path explicitly.
 
-## Run the Deployment Verification
-
-After the deployment playbook completes, run the verification playbook:
-
-```bash
-ansible-playbook -i inventory.ini verify.yml
-```
-
-This checks the required packages, confirms Google Chrome was removed, verifies all three website files, checks the reboot and server reachability, confirms Apache is enabled and running, tests each page over HTTP, and validates the clean playbook recap. It writes the concise results to `verification-results.txt` without duplicating the full Ansible readout.
 
 ## Verify the Deployment
 
@@ -93,6 +84,14 @@ After the playbook completes, open the managed host's address in a browser:
 http://<managed-host-ip>
 ```
 
+Verify Chrome was removed:
+
+```bash
+ansible -i inventory.ini linux_vdi -b -m command -a "rpm -q google-chrome-stable"
+```
+Expected: not installed (This is expected and proves that Chrome was installed in the earlier task and removed later)
+
+
 Verify Apache is enabled and active:
 
 ```bash
@@ -100,18 +99,10 @@ ansible -i inventory.ini linux_vdi -m command -a "systemctl is-enabled httpd"
 ```
 Expected: Enabled
 
-Verify Apache is enabled and active:
-
 ```bash
 ansible -i inventory.ini linux_vdi -b -m command -a "systemctl is-active httpd"
 ```
-
-```bash
-ansible -i inventory.ini -m ansible.builtin.shell -a "systemctl is-active httpd" --become
-curl http://<managed-host-ip>
-```
-
-A successful run should finish with `faild=0`, and Apache should report `active`.
+Expected: active
 
 ## Repository Layout
 
