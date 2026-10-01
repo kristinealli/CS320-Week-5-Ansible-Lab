@@ -1,6 +1,7 @@
 # CS320 Week 5 Ansible Web Server Lab
 
-An Ansible lab that provisions an AlmaLinux virtual machine as a basic Apache web server and deploys a small static website. The Ansible control node is WSL running on Windows.
+An Ansible lab that provisions an AlmaLinux virtual machine as an Apache web server and deploys a small static website. 
+WSL running on Windows serves as the Ansible control node.
 
 ## Overview
 
@@ -8,9 +9,9 @@ The `site.yml` playbook automates the following tasks on the managed AlmaLinux h
 
 - Adds the Google Chrome repository and installs the lab's required packages.
 - Installs Apache HTTP Server, MariaDB Server, Firefox, and Git.
-- Copies the static website into Apache's document root at `/var/www/html`.
+- Copies the static website into HTTP server document root at `/var/www/html`.
 - Removes Google Chrome after installation.
-- Reboots the managed host and waits for it to return.
+- Reboots the managed host, then await its return.
 - Enables and restarts Apache.
 - Confirms that Apache is active and that the website returns HTTP status `200`.
 
@@ -31,15 +32,13 @@ The website contains three pages:
 
 ## Prerequisites
 
-Before running the playbook, confirm that you have:
-
 - WSL with an Ansible control environment.
 - Ansible installed.
 - Network or SSH access to the AlmaLinux managed host.
-- A working SSH private key with permission to connect to the managed host.
+- Working SSH private key with permission to connect to the managed host.
 - `sudo` privileges on the managed host.
 
-Check the Ansible installation with:
+Confirm Ansible installation:
 
 ```bash
 ansible --version
@@ -47,7 +46,7 @@ ansible --version
 
 ## Configuration
 
-Update `inventory.ini` for your environment. The inventory identifies the managed host, its IP address, SSH user, and private key:
+Update `inventory.ini` for your specific environment. The inventory identifies the managed host, the managed hosts IP address, SSH user, and private key:
 
 ```ini
 [linux_vdi]
@@ -56,14 +55,14 @@ tp_cs320_al10 ansible_host=10.2.37.105 ansible_user=kjohnson ansible_connection=
 
 Do not commit private keys, passwords, or environment-specific credentials. Replace the sample host values when using this project on another machine.
 
-Test inventory discovery and SSH connectivity before running the playbook:
+Test to confirm inventory and SSH connectivity prior to running the playbook:
 
 ```bash
 ansible all -i inventory.ini --list-hosts
 ansible all -i inventory.ini -m ansible.builtin.ping
 ```
 
-The first command should list the configured managed host rather than `localhost`.
+The first command above should list the configured managed host (not`localhost`).
 
 ## Run the Playbook
 
@@ -73,7 +72,7 @@ From the project directory, run:
 ansible-playbook -i inventory.ini site.yml
 ```
 
-The playbook uses `become: true`, so Ansible may prompt for the managed user's `sudo` password. If the SSH key or inventory file is stored elsewhere, use its path explicitly.
+Since the playbook uses `become: true`,  Ansible may prompt for the managed user's `sudo` password.
 
 
 ## Verify the Deployment
@@ -84,7 +83,7 @@ After the playbook completes, open the managed host's address in a browser:
 http://<managed-host-ip>
 ```
 
-Verify Chrome was removed:
+Confirm Chrome was succesfully removed:
 
 ```bash
 ansible -i inventory.ini linux_vdi -b -m command -a "rpm -q google-chrome-stable"
